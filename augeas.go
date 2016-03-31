@@ -15,7 +15,7 @@ import (
 // Flag describes flags that influence the behaviour of Augeas when
 // passed to New.
 type Flag uint
-type File C.FILE
+type File C.struct__IO_FILE
 
 // Bits or'ed together to modify the behavior of Augeas.
 const (
@@ -205,8 +205,10 @@ func (a Augeas) Srun(text string) (out string, err error) {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))
 
-	out := File{}
-	ret := C.aug_srun(a.handle, out, text)
+  outFile := C.struct__IO_FILE{}
+	ret := C.aug_srun(a.handle, &outFile, cText)
+
+  // TODO: how do we get the outFile content into out?
 
 	if ret != 0 {
 		return out, a.error()
